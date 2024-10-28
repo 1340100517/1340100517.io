@@ -355,16 +355,19 @@
     </div>
 
     <!-- 新增消息提示音 -->
-    <audio id="notificationSound">
-        <source src="https://cdn.jsdelivr.net/gh/1340100517/1340100517.io@main/tishi.wav" type="audio/mpeg">
-        您的浏览器不支持音频元素。
-    </audio>
+<audio id="notificationSound" preload="auto">
+    <source src="https://cdn.jsdelivr.net/gh/1340100517/1340100517.io@main/tishi.wav" type="audio/wav">
+</audio>
 
     <!-- 背景音乐 -->
-    <audio id="bgMusic" loop>
-        <source src="https://cdn.jsdelivr.net/gh/1340100517/1340100517.io@main/jsqfy.mp3" type="audio/mpeg">
-        您的浏览器不支持音频元素。
-    </audio>
+    <audio id="bgMusic" loop preload="auto">
+        <!-- 使用 jsDelivr CDN -->
+    <source src="https://cdn.jsdelivr.net/gh/1340100517/1340100517.io@main/jsqfy.mp3" type="audio/mpeg">
+    <!-- 备用 CDN -->
+    <source src="https://fastly.jsdelivr.net/gh/1340100517/1340100517.io@main/jsqfy.mp3" type="audio/mpeg">
+    <!-- 再添加一个备用 CDN -->
+    <source src="https://gcore.jsdelivr.net/gh/1340100517/1340100517.io@main/jsqfy.mp3" type="audio/mpeg">
+</audio>
 
     <script>
         const chatBox = document.getElementById('chat-box');
