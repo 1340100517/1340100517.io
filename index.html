@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>白狐养生堂在线咨询</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.cnpmjs.org/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .chat-container {
+            background-image: url('https://cdn.jsdelivr.net/gh/1340100517/1340100517.io@main/hu.jpg');
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            width: 90%;
+            max-width: 1200px;
+            height: 80vh;
+            overflow: hidden;
+            position: relative;
+        }
+        .chat-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.3);
+            z-index: 1;
+        }
+        .sidebar, .main-chat, .doctor-sidebar {
+            position: relative;
+            z-index: 2;
+            background-color: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(5px);
+        }
+        .sidebar {
+            width: 25%;
+            padding: 20px;
+            border-right: 1px solid rgba(229, 231, 235, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .main-chat {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+        }
+        .doctor-sidebar {
+            width: 25%;
+            padding: 20px;
+            border-left: 1px solid rgba(229, 231, 235, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-box {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .input-area {
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        .message {
+            max-width: 80%;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .message-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .message-time {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .message-left {
+            background-color: rgba(243, 244, 246, 0.8);
+            align-self: flex-start;
+        }
+        .message-right {
+            background-color: rgba(59, 130, 246, 0.8);
+            color: white;
+            align-self: flex-end;
+        }
+        .logo-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .logo {
+            max-width: 100%;
+            height: auto;
+            mix-blend-mode: multiply;
+        }
+        .info-section {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .qr-code {
+            margin-top: auto;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .doctor-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .doctor-info img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+        .action-buttons button {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            flex: 1;
+            max-width: 150px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .music-player {
+            text-align: center;
+            padding: 10px;
+        }
+        .record-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 10px;
+        }
+        .record {
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: spin 4s linear infinite;
+            animation-play-state: paused;
+        }
+        .album-art {
+            width: 70%;
+            height: 70%;
+            background-image: url('https://cdn.jsdelivr.net/gh/1340100517/1340100517.io@main/xxheb.jpg');
+            background-size: cover;
+            border-radius: 50%;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+        .control-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 12px;
+        }
+        .control-btn:hover {
+            background-color: #45a049;
+        }
+        .volume-slider {
+            width: 60px;
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+    .hover-float {
+        transition: transform 0.3s ease;
+    }
+
+    .hover-float:hover {
+        transform: translateY(-5px);
+    }
+
+    .button-press {
+        transition: transform 0.1s ease-in-out;
+    }
+
+    .button-press:active {
+        transform: translateY(2px);
+    }
+
+    .button-press-permanent {
+        transition: transform 0.1s ease-in-out;
+    }
+
+    .button-press-permanent.selected {
+        transform: translateY(2px);
+        box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .button-disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+</style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="sidebar">
+            <div class="logo-container">
+                <img src="https://cdn.jsdelivr.net/gh/1340100517/1340100517.io@main/logo3.png" alt="Logo" class="logo">
+            </div>
+            <div class="info-section">
+                <h2 class="text-xl font-bold mb-4">信息专栏</h2>
+                <a href="#" id="hospital-info" class="mb-2 block">养生堂介绍</a>
+                <a href="#" id="disease-info" class="mb-2 block">养生方案</a>
+                <a href="#" id="doctor-team" class="mb-2 block">专家团队</a>
+            </div>
+            <div class="qr-code">
+                <img src="https://cdn.jsdelivr.net/gh/1340100517/1340100517.io@main/grcode.jpg" alt="QR Code" class="w-32 h-32 mx-auto">
+                <p class="mt-2">微信扫码咨询</p>
+            </div>
+        </div>
+        <div class="main-chat">
+            <div id="chat-box" class="chat-box"></div>
+            <div class="input-area">
+                <input type="text" id="user-input" class="w-full p-2 rounded" placeholder="请输入您的问题...">
+                <button id="send-btn" class="mt-2 bg-blue-500 text-white py-2 px-4 rounded hover-float button-press">发送</button>
+            </div>
+        </div>
+        <div class="doctor-sidebar">
+            <h2 class="text-xl font-bold mb-4">相关专家</h2>
+            <div class="doctor-info">
+                <img src="https://cdn.jsdelivr.net/gh/1340100517/1340100517.io@main/lt.jpg" alt="刘医生">
+                <div>
+                    <div><strong>刘医生</strong></div>
+                    <div>药膳营养师</div>
+                </div>
+            </div>
+            <div class="doctor-info">
+                <img src="https://cdn.jsdelivr.net/gh/1340100517/1340100517.io@main/wl.png" alt="王医生">
+                <div>
+                    <div><strong>王医生</strong></div>
+                    <div>运动营养师</div>
+                </div>
+            </div>
+            <div class="action-buttons mt-4">
+                <button id="leave-message-btn" class="bg-purple-500 text-white py-2 px-4 rounded-full text-sm hover-float button-press">留言</button>
+                <button id="company-motto-btn" class="bg-green-500 text-white py-2 px-4 rounded-full text-sm hover-float button-press">公司宗旨</button>
+            </div>
+            <div class="music-player mt-auto">
+                <h3 class="text-lg font-semibold mb-2">轻音乐</h3>
+                <div class="record-container">
+                    <div class="record">
+                        <div class="album-art" id="albumArt"></div>
+                    </div>
+                </div>
+                <div class="controls mt-2">
+                    <button id="playPauseBtn" class="control-btn hover-float">播放</button>
+                    <input type="range" id="volumeControl" min="0" max="1" step="0.1" value="1" class="volume-slider">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 留言板模态框 -->
+    <div id="message-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 class="text-xl font-bold mb-4">留言板</h2>
+            <textarea id="message-content" rows="4" class="w-full p-2 border rounded mb-4" placeholder="请输入您的留言..."></textarea>
+            <button id="submit-message" class="bg-blue-500 text-white py-2 px-4 rounded">提交留言</button>
+        </div>
+    </div>
+
+    <!-- 公司宗旨模态框 -->
+    <div id="motto-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
+            <span class="close">&times;</span>
+            <h2 class="text-2xl font-bold mb-4">白狐养生堂：您的健康守护者</h2>
+            <div class="text-sm leading-relaxed">
+                <p>白狐养生堂是一家专注于提供高品质养生服务的专业机构。我们的使命是通过传统中医理念与现代科技的结合,为您提供全面的健康养生方案。</p>
+                <p class="mt-2">我们的核心价值观：</p>
+                <ul class="list-disc list-inside mt-2">
+                    <li>健康至上：我们坚持使用天然、优质的草药和材料,确保每一次养生体验都安全有效。</li>
+                    <li>创新融合：我们不断探索中医养生理念与现代科技的结合,为您提供最先进的养生方案。</li>
+                    <li>个性定制：我们深知每个人的体质和需求都不同,因此我们为每位客户量身定制专属养生计划。</li>
+                    <li>全面呵护：我们不仅关注身体健康,更注重心灵的滋养,为您提供身心全面的呵护。</li>
+                </ul>
+                <p class="mt-2">白狐养生堂致力于成为您健康生活的引领者,通过我们的服务,为每一位客户带来健康与活力。我们相信,平衡的生活方式是幸福人生的基石,让我们携手共创美好未来！</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增消息提示音 -->
+    <audio id="notificationSound" preload="auto">
+        <source src="https://cdn.jsdelivr.net/gh/1340100517/1340100517.io@main/tishi.wav" type="audio/wav">
+    </audio>
+
+    <!-- 背景音乐 -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://cdn.jsdelivr.net/gh/1340100517/1340100517.io@main/jsqfy.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-btn');
+        const hospitalInfoLink = document.getElementById('hospital-info');
+        const diseaseInfoLink = document.getElementById('disease-info');
+        const doctorTeamLink = document.getElementById('doctor-team');
+
+        let messageIndex = 0;
+        const messages = [
+            "亲爱的姐妹/小哥哥,你好呀~ 我是白狐养生堂的小楸,很高兴能为你服务哦! (ᵔᴥᵔ)",
+            "为了给你提供更贴心的服务,能告诉小楸你的性别吗?"
+        ];
+
+        let userGender = null;
+        let userAge = null;
+        let askingForGender = false;
+
+        const keywordResponses = {
+            "失眠": "失眠确实会影响生活质量呢。我们有专门的助眠养生方案,结合中医理论和现代技术,帮助你改善睡眠。要不要了解一下?",
+            "压力": "工作生活中的压力确实会影响身心健康。我们的减压养生方案包括中医推拿、艾灸等,可以帮你缓解压力,放松身心哦。",
+            "养生": "养生是一个很好的选择呢!我们有多种养生方案,包括中药调理、针灸推拿、营养膳食等,可以根据你的具体情况来制定哦。"
+        };
+
+        const diseaseCategories = {
+            "亚健康调理": ["失眠", "疲劳", "免疫力低下"],
+            "慢性病管理": ["高血压", "糖尿病", "颈椎病"],
+            "美容养颜": ["祛斑", "抗衰老", "美白"]
+        };
+
+        const doctorTeamMessages = [
+            { name: "刘医生", expertise: "中医养生专家", img: "lt.jpg" },
+            { name: "王医生", expertise: "营养调理师", img: "wb.png" },
+            { name: "李医生", expertise: "针灸推拿师", img: "wl.png" }
+        ];
+
+        function getCurrentTime() {
+            const now = new Date();
+            return now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function scrollToBottom() {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function playNotificationSound() {
+            const notificationSound = document.getElementById('notificationSound');
+            notificationSound.play();
+        }
+
+        function displayNextMessage() {
+            if (messageIndex < messages.length) {
+                const message = document.createElement('div');
+                message.className = 'message message-left';
+                message.innerHTML = `
+                    <div class="message-header">小楸</div>
+                    <div class="message-time">${getCurrentTime()}</div>
+                    <div>${messages[messageIndex]}</div>
+                `;
+                
+                if (messageIndex === 1) {
+                    message.innerHTML += `
+                        <div class="button-group mt-2">
+                                                         <button class="gender-btn bg-pink-500 text-white px-4 py-2 rounded mr-2 hover-float button-press-permanent" data-gender="女">女士</button>
+                             <button class="gender-btn bg-blue-500 text-white px-4 py-2 rounded hover-float button-press-permanent" data-gender="男">先生</button>
+                        </div>
+                    `;
+                    askingForGender = true;
+                }
+                
+                chatBox.appendChild(message);
+                messageIndex++;
+                scrollToBottom();
+                playNotificationSound();
+
+                if (askingForGender) {
+                    addGenderButtonListeners();
+                }
+            }
+        }
+
+        function addGenderButtonListeners() {
+            document.querySelectorAll('.gender-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    handleGenderResponse(this.getAttribute('data-gender'));
+                });
+            });
+        }
+
+        function addAgeButtonListeners() {
+            document.querySelectorAll('.age-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    handleAgeResponse(this.getAttribute('data-age'));
+                });
+            });
+        }
+
+        function handleGenderResponse(gender) {
+    userGender = gender;
+    askingForGender = false;
+    
+    // 添加选中效果并禁用其他按钮
+    const genderButtons = document.querySelectorAll('.gender-btn');
+    genderButtons.forEach(btn => {
+        if (btn.getAttribute('data-gender') === gender) {
+            btn.classList.add('selected');
+        } else {
+            btn.classList.add('button-disabled');
+            btn.disabled = true;
+        }
+    });
+            
+            let ageQuestion = gender === '女' ? 
+                "谢谢你告诉我呢,美丽的小姐姐~ 那么,你属于哪个年龄段呢?" :
+                "谢谢你告诉我呢,帅气的小哥哥~ 那么,你属于哪个年龄段呢?";
+            
+            const message = document.createElement('div');
+            message.className = 'message message-left';
+            message.innerHTML = `
+                <div class="message-header">小楸</div>
+                <div class="message-time">${getCurrentTime()}</div>
+                <div>${ageQuestion}</div>
+                <div class="button-group mt-2">
+                                         <button class="age-btn bg-green-500 text-white px-2 py-1 rounded m-1 hover-float button-press-permanent" data-age="1-28">1-28岁</button>
+                     <button class="age-btn bg-green-500 text-white px-2 py-1 rounded m-1 hover-float button-press-permanent" data-age="28-35">28-35岁</button>
+                     <button class="age-btn bg-green-500 text-white px-2 py-1 rounded m-1 hover-float button-press-permanent" data-age="35-55">35-55岁</button>
+                     <button class="age-btn bg-green-500 text-white px-2 py-1 rounded m-1 hover-float button-press-permanent" data-age="55+">55岁以上</button>
+                </div>
+            `;
+            
+            chatBox.appendChild(message);
+            scrollToBottom();
+            playNotificationSound();
+            addAgeButtonListeners();
+        }
+
+        function handleAgeResponse(ageRange) {
+    userAge = ageRange;
+    const messages = getPersonalizedMessage(userGender, userAge);
+    sendMultipleMessages(messages);
+    // 添加选中效果并禁用其他按钮
+    const ageButtons = document.querySelectorAll('.age-btn');
+    ageButtons.forEach(btn => {
+        if (btn.getAttribute('data-age') === ageRange) {
+            btn.classList.add('selected');
+        } else {
+            btn.classList.add('button-disabled');
+            btn.disabled = true;
+        }
+    });
+}
+
+function getPersonalizedMessage(gender, age) {
+    let messages = [];
+    if (gender === '男') {
+        if (age === '1-28') {
+            messages = [
+                "小哥哥好呀~很开心你对我们白狐养生堂的草本滋补品感兴趣哦。",
+                "作为一个活力满满的年轻人,你一定希望在忙碌的生活中保持最佳状态吧?我们的滋补品可是祖传秘方加上高科技的完美结合呢,不仅能让你元气满满,还能增强抵抗力哦。",
+                "如果你经常熬夜或者工作学习压力大,不妨试试我们的养生汤包吧。我们还有专业的营养师团队,可以为你量身定制方案呢。",
+                "想了解更多小秘密吗?欢迎加我们的客服微信哦,会有更多惊喜等着你呢~"
+            ];
+        } else if (age === '28-35') {
+            messages = [
+                "帅哥你好啊~你正处在人生的黄金时期呢,身体保养可不能落下哦。",
+                "我们的草本滋补品可是纯天然植物配方,安全又放心,绝对不会有副作用的。无论是工作后需要快速充电,还是想要日常调理增强体质,都能满足你的需求呢。",
+                "我们的专业营养师团队还可以根据你的情况给出个性化建议哦。",
+                "想要获得更详细的养生指导吗?欢迎加我们的专业顾问微信,我们会为你提供更贴心的一对一服务的~"
+            ];
+        } else if (age === '35-55') {
+            messages = [
+                "先生您好!您正处于事业的巅峰期,但也是需要特别关注身体健康的时候了。",
+                "我们的养生方案特别适合您这个年龄段的需求,能够有效缓解工作压力,改善亚健康状态。",
+                "我们的中医专家可以为您量身定制调理方案,帮助您保持旺盛的精力和健康的体魄。",
+                "如果您想了解更多关于如何在繁忙的工作中保持健康的秘诀,欢迎添加我们的健康顾问微信哦~"
+            ];
+        } else if (age === '55+') {
+            messages = [
+                "尊敬的先生您好!很高兴您关注自己的健康状况。",
+                "在这个年龄段,养生保健显得尤为重要。我们有专门针对中老年人的养生方案,包括调理脏腑、强筋健骨等。",
+                "我们的老年健康专家可以为您提供个性化的养生建议,帮助您延年益寿,享受幸福晚年。",
+                "如果您想了解更多适合您年龄段的养生知识,欢迎添加我们的健康顾问微信,我们将为您提供更专业的指导~"
+            ];
+        }
+    } else if (gender === '女') {
+        if (age === '1-28') {
+            messages = [
+                "姐妹你好呀~很高兴能和你分享我们白狐养生堂的草本滋补品。",
+                "这款产品可是专门为追求美丽与健康的年轻女生研发的哦。它不仅能让你的皮肤变得更加水嫩光滑,还能调节内分泌,缓解压力呢。",
+                "如果你平时就很注重养生,那这绝对是你的心头好啦。我们的专业团队还可以为你定制专属的美容养颜方案哦。",
+                "想知道更多美丽小秘诀吗?快来加我们的美容顾问微信吧,会告诉你更多养颜小妙招的~"
+            ];
+        } else if (age === '28-35') {
+            messages = [
+                "美女姐姐好呀~你正处在人生的黄金岁月呢,但是可能也会遇到一些小烦恼,比如姨妈痛或者睡眠不好之类的。",
+                "我们的草本滋补品可是结合了传统中医理论和现代科技哦,能给你温和又有效的调理。里面精选的草本成分可是有舒缓神经、补血养颜的神奇功效呢。",
+                "我们的专业营养师团队还可以根据你的体质和需求,为你量身定制健康美丽方案哦。",
+                "想要获得更专业的养生建议吗?欢迎加我们的健康顾问微信,我们会为你开启专属的美丽之旅的~"
+            ];
+        } else if (age === '35-55') {
+            messages = [
+                "亲爱的女士您好!这个年龄段的您,既要兼顾事业和家庭,又要保持优雅和活力,确实不容易呢。",
+                "我们的养生方案特别关注女性在这个年龄段的需求,能够帮助您调理气血,延缓衰老,保持旺盛的精力。",
+                "我们的女性健康专家可以为您提供个性化的养生美容方案,帮助您在这个人生阶段绽放最美的光彩。",
+                "如果您想了解更多关于如何平衡事业、家庭和自我保养的秘诀,欢迎添加我们的女性健康顾问微信哦~"
+            ];
+        } else if (age === '55+') {
+            messages = [
+                "尊敬的女士您好!很高兴您如此重视自己的健康状况。",
+                "在这个年龄段,养生保健对于女性来说更是关键。我们有专门针对中老年女性的养生方案,包括调理更年期症状、保养筋骨等。",
+                "我们的女性老年健康专家可以为您提供贴心的养生建议,帮助您保持健康活力,优雅从容地度过人生的每一天。",
+                "如果您想了解更多适合您年龄段的养生美容知识,欢迎添加我们的女性健康顾问微信,我们将为您提供更专业的指导~"
+            ];
+        }
+    }
+    messages[messages.length - 1] += `
+        <div class="button-group mt-2">
+            <button class="intro-btn bg-blue-500 text-white px-4 py-2 rounded mr-2 hover-float button-press">养生堂介绍</button>
+            <button class="contact-btn bg-green-500 text-white px-4 py-2 rounded hover-float button-press">联系客服</button>
+        </div>
+    `;
+    return messages;
+}
+
+function sendMultipleMessages(messages) {
+    let delay = 0;
+    messages.forEach((msg, index) => {
+        setTimeout(() => {
+            const message = document.createElement('div');
+            message.className = 'message message-left';
+            
+            if (typeof msg === 'object' && msg.buttons) {
+                // 这是最后一条带按钮的消息
+                message.innerHTML = `
+                    <div class="message-header">小楸</div>
+                    <div class="message-time">${getCurrentTime()}</div>
+                    <div>${msg.text}</div>
+                    <div class="button-group mt-2">
+                        ${msg.buttons.map(btn => `<button class="${btn.class}">${btn.text}</button>`).join('')}
+                    </div>
+                `;
+            } else {
+                // 普通消息
+                message.innerHTML = `
+                    <div class="message-header">小楸</div>
+                    <div class="message-time">${getCurrentTime()}</div>
+                    <div>${msg}</div>
+                `;
+            }
+            
+            chatBox.appendChild(message);
+            scrollToBottom();
+            if (index === messages.length - 1) {
+                playNotificationSound();
+                // 为新添加的按钮绑定事件
+                const introBtn = message.querySelector('.intro-btn');
+                const contactBtn = message.querySelector('.contact-btn');
+                if (introBtn) introBtn.addEventListener('click', showIntroduction);
+                if (contactBtn) contactBtn.addEventListener('click', showContactInfo);
+            }
+        }, delay);
+        delay += 1000; // 每条消息之间间隔1秒
+    });
+}
+
+function showIntroduction() {
+    const introMessage = document.createElement('div');
+    introMessage.className = 'message message-left';
+    introMessage.innerHTML = `
+        <div class="message-header">白狐养生堂</div>
+        <div class="message-time">${getCurrentTime()}</div>
+        <div>
+            <img src="caoyao.jpg" alt="白狐养生堂" class="w-full mb-2 rounded">
+            <h3 class="font-bold mt-2">白狐养生堂：您的健康守护者</h3>
+            <p class="mt-2">白狐养生堂是一家致力于提供高品质养生服务的专业机构。我们秉承"自然、平衡、焕新"的理念,为您打造一个放松身心的宁静港湾。</p>
+            <p class="mt-2">我们的特色:</p>
+            <ul class="list-disc list-inside mt-1">
+                <li>专业团队：经验丰富的养生专家为您量身定制养生方案</li>
+                <li>优质服务：融合传统与现代技术,提供全方位的养生体验</li>
+                <li>舒适环境：宁静雅致的空间设计,让您彻底放松身心</li>
+                <li>天然材料：精选优质天然草本,呵护您的健康</li>
+            </ul>
+            <p class="mt-2">在白狐养生堂,我们不仅关注您的身体健康,更注重心灵的滋养。让我们携手共创健康美好的生活!</p>
+        </div>
+    `;
+    chatBox.appendChild(introMessage);
+    scrollToBottom();
+    playNotificationSound();
+}
+
+function showContactInfo() {
+    const contactMessage = document.createElement('div');
+    contactMessage.className = 'message message-left';
+    contactMessage.innerHTML = `
+        <div class="message-header">客服小楸</div>
+        <div class="message-time">${getCurrentTime()}</div>
+        <div>
+            <p>感谢您对白狐养生堂的关注!我们的专业客服团队随时为您服务。</p>
+            <p class="mt-2">您可以通过以下方式联系我们:</p>
+            <ul class="list-disc list-inside mt-1">
+                <li>客服热线: 17732601994 (周一至周日 9:00-21:00)</li>
+                <li>官方微信: BaiHuYangSheng或扫描左下角二维码<br><span style="padding-left: 17.5px;">(添加微信请备注：养生咨询)</span></li>
+                <li>电子邮箱: 1340100517@qq.com</li>
+            </ul>
+            <p class="mt-2">我们期待为您提供更专业、更贴心的养生服务!</p>
+        </div>
+    `;
+    chatBox.appendChild(contactMessage);
+    scrollToBottom();
+    playNotificationSound();
+}
+
+        function respondToUserMessage(userMessage) {
+            let responded = false;
+            for (const keyword in keywordResponses) {
+                if (userMessage.toLowerCase().includes(keyword)) {
+                    const response = document.createElement('div');
+                    response.className = 'message message-left';
+                    response.innerHTML = `
+                        <div class="message-header">小楸</div>
+                        <div class="message-time">${getCurrentTime()}</div>
+                              <div>${keywordResponses[keyword]}</div>
+    `;
+    chatBox.appendChild(response);
+    scrollToBottom();
+    playNotificationSound();
+    responded = true;
+    break;
+  }
+}
+if (!responded) {
+  const defaultResponse = document.createElement('div');
+  defaultResponse.className = 'message message-left';
+  defaultResponse.innerHTML = `
+    <div class="message-header">小楸</div>
+    <div class="message-time">${getCurrentTime()}</div>
+    <div>谢谢你的咨询哦~这个问题有点复杂,不如我们来微信聊聊吧?可以预约一次免费的养生咨询哦,我们的专家会为你提供更专业的建议呢!</div>
+  `;
+  chatBox.appendChild(defaultResponse);
+  scrollToBottom();
+  playNotificationSound();
+}
+}
+
+function sendMessage() {
+const userMessage = userInput.value.trim();
+if (userMessage) {
+  const message = document.createElement('div');
+  message.className = 'message message-right';
+  message.innerHTML = `
+    <div class="message-header">用户</div>
+    <div class="message-time">${getCurrentTime()}</div>
+    <div>${userMessage}</div>
+  `;
+  chatBox.appendChild(message);
+  userInput.value = '';
+  scrollToBottom();
+  
+  // 添加延迟,模拟服务器响应时间
+  setTimeout(() => {
+    respondToUserMessage(userMessage);
+  }, 1000); // 1秒延迟
+}
+}
+
+function createDiseaseButtons(category, diseases) {
+return diseases.map(disease => 
+               `<button class="disease-btn bg-blue-500 text-white px-2 py-1 rounded m-1 hover-float button-press" data-disease="${disease}">${disease}</button>`
+).join('');
+}
+
+sendButton.addEventListener('click', sendMessage);
+userInput.addEventListener('keypress', (event) => {
+if (event.key === 'Enter') {
+  sendMessage();
+}
+});
+
+doctorTeamLink.addEventListener('click', (event) => {
+event.preventDefault();
+const message = document.createElement('div');
+message.className = 'message message-left';
+message.innerHTML = `
+  <div class="message-header">专家团队</div>
+  <div class="message-time">${getCurrentTime()}</div>
+  ${doctorTeamMessages.map(doctor => `
+    <div class="doctor-info">
+      <img src="${doctor.img}" alt="${doctor.name}">
+      <div>
+        <div><strong>${doctor.name}</strong></div>
+        <div>${doctor.expertise}</div>
+      </div>
+    </div>
+  `).join('')}
+`;
+chatBox.appendChild(message);
+scrollToBottom();
+playNotificationSound();
+});
+
+hospitalInfoLink.addEventListener('click', (event) => {
+event.preventDefault();
+const message = document.createElement('div');
+message.className = 'message message-left';
+message.innerHTML = `
+  <div class="message-header">白狐养生堂</div>
+  <div class="message-time">${getCurrentTime()}</div>
+  <div>
+    <img src="caoyao.jpg" alt="白狐养生堂" class="w-full mb-2 rounded">
+    <h3 class="font-bold mt-2">白狐养生堂：您的健康守护者</h3>
+    <p class="mt-2">白狐养生堂是一家致力于提供高品质养生服务的专业机构。我们秉承"自然、平衡、焕新"的理念,为您打造一个放松身心的宁静港湾。</p>
+    <p class="mt-2">我们的特色:</p>
+    <ul class="list-disc list-inside mt-1">
+      <li>专业团队：经验丰富的养生专家为您量身定制养生方案</li>
+      <li>优质服务：融合传统与现代技术,提供全方位的养生体验</li>
+      <li>舒适环境：宁静雅致的空间设计,让您彻底放松身心</li>
+      <li>天然材料：精选优质天然草本,呵护您的健康</li>
+    </ul>
+    <p class="mt-2">在白狐养生堂,我们不仅关注您的身体健康,更注重心灵的滋养。让我们携手共创健康美好的生活!</p>
+  </div>
+`;
+chatBox.appendChild(message);
+scrollToBottom();
+playNotificationSound();
+});
+
+diseaseInfoLink.addEventListener('click', (event) => {
+event.preventDefault();
+const message = document.createElement('div');
+message.className = 'message message-left';
+message.innerHTML = `
+  <div class="message-header">养生方案</div>
+  <div class="message-time">${getCurrentTime()}</div>
+  <div>
+    ${Object.entries(diseaseCategories).map(([category, diseases]) => `
+      <div class="mb-2">
+        <h4 class="font-bold">${category}</h4>
+        <div>${createDiseaseButtons(category, diseases)}</div>
+      </div>
+    `).join('')}
+  </div>
+`;
+chatBox.appendChild(message);
+scrollToBottom();
+playNotificationSound();
+
+// 为养生方案按钮添加点击事件
+message.querySelectorAll('.disease-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const disease = this.getAttribute('data-disease');
+    const response = document.createElement('div');
+    response.className = 'message message-left';
+    response.innerHTML = `
+      <div class="message-header">小楸</div>
+      <div class="message-time">${getCurrentTime()}</div>
+      <div>关于${disease}的养生方案,我们有专门的调理方案哦。建议您到店咨询我们的专家,他们会为您制定个性化的养生计划。您可以添加我们的微信预约免费咨询呢~</div>
+    `;
+    chatBox.appendChild(response);
+    scrollToBottom();
+    playNotificationSound();
+  });
+});
+
+});
+
+// 留言板功能
+const messageModal = document.getElementById('message-modal');
+const leaveMessageBtn = document.getElementById('leave-message-btn');
+const closeModal = document.getElementsByClassName('close')[0];
+const submitMessage = document.getElementById('submit-message');
+const messageContent = document.getElementById('message-content');
+
+leaveMessageBtn.onclick = function() {
+messageModal.style.display = "block";
+}
+
+closeModal.onclick = function() {
+messageModal.style.display = "none";
+}
+
+// 公司宗旨功能
+const mottoModal = document.getElementById('motto-modal');
+const companyMottoBtn = document.getElementById('company-motto-btn');
+const closeMottoModal = mottoModal.getElementsByClassName('close')[0];
+
+companyMottoBtn.onclick = function() {
+mottoModal.style.display = "block";
+}
+
+closeMottoModal.onclick = function() {
+mottoModal.style.display = "none";
+}
+
+window.onclick = function(event) {
+if (event.target == messageModal) {
+  messageModal.style.display = "none";
+}
+if (event.target == mottoModal) {
+  mottoModal.style.display = "none";
+}
+}
+
+submitMessage.onclick = function() {
+const message = messageContent.value.trim();
+if (message) {
+  // 这里可以添加发送留言到服务器的逻辑
+  alert('您的留言已提交：' + message);
+  messageContent.value = '';
+  messageModal.style.display = "none";
+
+  // 在聊天框中显示留言已提交的消息
+  const confirmationMessage = document.createElement('div');
+  confirmationMessage.className = 'message message-left';
+  confirmationMessage.innerHTML = `
+    <div class="message-header">小楸</div>
+    <div class="message-time">${getCurrentTime()}</div>
+    <div>您的留言已成功提交,我们会尽快处理并回复您。感谢您的反馈!</div>
+  `;
+  chatBox.appendChild(confirmationMessage);
+  scrollToBottom();
+  playNotificationSound();
+}
+}
+
+// 初始化显示第一条消息
+displayNextMessage();
+
+const audio = document.getElementById('bgMusic');
+const playPauseBtn = document.getElementById('playPauseBtn');
+const record = document.querySelector('.record');
+const volumeControl = document.getElementById('volumeControl');
+
+function playAudio() {
+audio.play().then(() => {
+  playPauseBtn.textContent = '暂停';
+  record.style.animationPlayState = 'running';
+}).catch(error => {
+  console.log('自动播放失败:', error);
+  playPauseBtn.textContent = '播放';
+  record.style.animationPlayState = 'paused';
+});
+}
+
+// 页面加载完成后尝试自动播放
+window.addEventListener('load', playAudio);
+
+// 如果自动播放失败,在用户首次交互时尝试播放
+document.body.addEventListener('click', function bodyClick() {
+if (audio.paused) {
+  playAudio();
+}
+// 移除这个事件监听器,避免重复触发
+document.body.removeEventListener('click', bodyClick);
+}, { once: true });
+
+playPauseBtn.addEventListener('click', function() {
+if (audio.paused) {
+  playAudio();
+} else {
+  audio.pause();
+  playPauseBtn.textContent = '播放';
+  record.style.animationPlayState = 'paused';
+}
+});
+
+volumeControl.addEventListener('input', function() {
+audio.volume = this.value;
+});
+
+// ... 现有的脚本代码 ...
+
+volumeControl.addEventListener('input', function() {
+audio.volume = this.value;
+});
+
+// 添加这行代码来启动对话
+window.addEventListener('load', function() {
+setTimeout(displayNextMessage, 1000); // 1秒后显示第一条消息
+});
+
+// 添加到现有脚本中
+function handleCDNError(element) {
+    const src = element.src;
+    // 如果 CDN 加载失败，回退到本地资源
+    element.src = src.replace('cdn.jsdelivr.net/gh/1340100517/1340100517.io@main/hospital', '');
+}
+
+// 为所有图片添加错误处理
+document.querySelectorAll('img').forEach(img => {
+    img.onerror = function() { handleCDNError(this); };
+});
+
+// 为音频添加错误处理
+document.querySelectorAll('audio source').forEach(source => {
+    source.onerror = function() { handleCDNError(this); };
+});
+
+bgMusic.addEventListener('loadeddata', () => {
+    console.log('音频已加载完成');
+});
+
+bgMusic.addEventListener('error', (e) => {
+    console.log('音频加载错误:', e);
+});
+</script>
+</html>
